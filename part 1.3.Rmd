@@ -62,10 +62,11 @@ run_metropolis_MCMC <- function(startvalue, iterations){
     } 
     return(chain) 
 }
+
 ```
 
 ```{r}
-fit_13<-function(chain, burnIn, sampleSize, trueA, tureB, trueSd){
+fit_13<-function(chain, burnIn, trueA, tureB, trueSd){
 par(mfrow = c(2,3))  
 hist(chain[-(1:burnIn),1],nclass=30, , main="Posterior of a", xlab="True value = red line" )  
 abline(v = mean(chain[-(1:burnIn),1])) 
@@ -86,9 +87,23 @@ abline(h = trueB, col="red" )
 plot(chain[-(1:burnIn),3], type = "l", xlab="True value = red line" , main = "Chain values of sd", ) 
 abline(h = trueSd, col="red" )
 
-x <- (-(sampleSize-1)/2):((sampleSize-1)/2)
-y <-  trueA * x + trueB + rnorm(n=sampleSize,mean=0,sd=trueSd)
-summary(lm(y~x))
 }
 
 ```
+```{r}
+#Test
+startvalue = c(4,0,10)
+sampleSize=31
+burnIn=5000
+trueA=5
+trueB=0
+trueSd=10
+x <- (-(sampleSize-1)/2):((sampleSize-1)/2)
+y <-  trueA * x + trueB + rnorm(n=sampleSize,mean=0,sd=trueSd)
+chain = run_metropolis_MCMC(startvalue, 10000)
+fit_13(chain,burnIn,trueA,trueB,trueSd)
+
+
+summary(lm(y~x))
+```
+
