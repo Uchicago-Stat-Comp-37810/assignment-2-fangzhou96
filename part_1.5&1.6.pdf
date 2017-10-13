@@ -1,0 +1,69 @@
+---
+title: "Untitled"
+author: "Fangzhou Yang"
+date: "10/12/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+source("Source.R")
+trueA <- 5  
+trueB <- 0    
+trueSd <- 10  
+sampleSize <- 31 
+
+x <- (-(sampleSize-1)/2):((sampleSize-1)/2)
+y <-  trueA * x + trueB + rnorm(n=sampleSize,mean=0,sd=trueSd)
+plot(x,y,main="Test Data")
+```
+
+```{r}
+slopelikelihoods=lapply(seq(3, 7, by=.05), slopevalues )
+plot (seq(3, 7, by=.05), slopelikelihoods , type="l", 
+      xlab = "values of slope parameter a", ylab = "Log likelihood")
+```
+
+```{r}
+startvalue = c(4,0,10) 
+chain = run_metropolis_MCMC(startvalue, 10000)
+burnIn = 5000
+acceptance = 1-mean(duplicated(chain[-(1:burnIn),]))
+fit_13(chain,burnIn,trueA,trueB,trueSd)
+summary(lm(y~x))
+```
+
+```{r}
+compare_outcomes<-function(iteration){
+  for(i in 1:10){
+    a<-runif(1,min=0,max=10)
+    b<-rnorm(1)
+    sd<-runif(1,min=0,max=20)
+    startvalue <- c(a,b,sd) 
+    chain<- run_metropolis_MCMC(startvalue, iteration)  
+    meana<-mean(chain[,1])
+    sda<-sd(chain[,1])
+    print(paste("mean is",meana, "sd is",sda))
+  }
+}
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+fit1 <- compare_outcomes(1000)
+fit2 <- compare_outcomes(10000)
+fit3 <- compare_outcomes(100000)
+```
+

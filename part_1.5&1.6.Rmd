@@ -1,0 +1,71 @@
+---
+title: "Assignment 2 part 1.5&1.6"
+author: "Fangzhou Yang"
+date: "10/12/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Main
+
+Firstly, we source all of the functions what we have saved in 1.4, and define variables:
+```{r}
+source("Source.R")
+trueA <- 5  
+trueB <- 0    
+trueSd <- 10  
+sampleSize <- 31 
+
+x <- (-(sampleSize-1)/2):((sampleSize-1)/2)
+y <-  trueA * x + trueB + rnorm(n=sampleSize,mean=0,sd=trueSd)
+plot(x,y,main="Test Data")
+```
+
+Plot the graph of slope lokelihood:
+```{r}
+slopelikelihoods=lapply(seq(3, 7, by=.05), slopevalues )
+plot (seq(3, 7, by=.05), slopelikelihoods , type="l", 
+      xlab = "values of slope parameter a", ylab = "Log likelihood")
+```
+
+Set value to the variables as below and plot graphs of a,b and sd:
+```{r}
+startvalue = c(4,0,10) 
+chain = run_metropolis_MCMC(startvalue, 10000)
+burnIn = 5000
+acceptance = 1-mean(duplicated(chain[-(1:burnIn),]))
+fit_13(chain,burnIn,trueA,trueB,trueSd)
+summary(lm(y~x))
+```
+
+
+Write the compare_outcomes function:
+```{r}
+compare_outcomes<-function(iteration){
+  for(i in 1:10){
+    a<-runif(1,min=0,max=10)
+    b<-rnorm(1)
+    sd<-runif(1,min=0,max=20)
+    startvalue <- c(a,b,sd) 
+    chain<- run_metropolis_MCMC(startvalue, iteration)  
+    meana<-mean(chain[,1])
+    sda<-sd(chain[,1])
+    print(paste("mean is",meana, "sd is",sda))
+  }
+}
+
+```
+
+
+Test the compare_outcomes function use iteration = 1000,10000 and 100000.
+```{r}
+fit1 <- compare_outcomes(1000)
+fit2 <- compare_outcomes(10000)
+fit3 <- compare_outcomes(100000)
+```
+
+
+From the test, we can see that the mean is around 4.97, and as iteration goes bigger, the mean is getting stable. Therefore we'd like to use a larger iteration to get an accurate outcome, but I think the iteration is no need to be pretty big, since it is unnecesary and run slow.
